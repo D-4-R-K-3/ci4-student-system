@@ -12,7 +12,7 @@ class StudentModel extends Model
     protected $protectFields    = true;
 
     // Fields that can be inserted/updated
-    protected $allowedFields = ['name', 'email', 'course', 'section'];
+    protected $allowedFields = ['student_number', 'first_name', 'last_name', 'email', 'course'];
 
     // Required for Step 9 of your lab
     protected $useSoftDeletes = true;
