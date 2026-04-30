@@ -11,7 +11,20 @@ class Students extends BaseController
     public function index()
     {
         $model = new StudentModel();
-        // Combined with Step 7: Pagination
+        $search = $this->request->getGet('search');
+
+        if ($search) {
+            // Futuristic multi-field scan logic
+            $model->groupStart()
+                    ->like('student_number', $search)
+                    ->orLike('first_name', $search)
+                    ->orLike('last_name', $search)
+                    ->orLike('email', $search)
+                    ->orLike('course', $search)
+                  ->groupEnd();
+        }
+
+        // Returns filtered results or all results if no search is performed
         $data['students'] = $model->paginate(10);
         $data['pager'] = $model->pager;
 
