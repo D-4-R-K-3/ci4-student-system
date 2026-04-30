@@ -124,3 +124,8 @@ _modules/*
 
 /results/
 /phpunit*.xml
+
+/vendor/
+/.env
+/writable/
+/node_modules/
