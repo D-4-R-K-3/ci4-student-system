@@ -27,7 +27,7 @@ class Students extends BaseController
     {
         $model = new StudentModel();
         $model->save($this->request->getPost());
-        return redirect()->to('/students');
+        return redirect()->to(site_url('students'));
     }
 
     public function edit($id)
@@ -36,7 +36,7 @@ class Students extends BaseController
         $data['student'] = $model->find($id);
         
         if (!$data['student']) {
-            return redirect()->to('/students')->with('error', 'Student not found');
+            return redirect()->to(site_url('students'))->with('error', 'Student not found');
         }
         
         return view('students/edit', $data);
@@ -46,13 +46,13 @@ class Students extends BaseController
     {
         $model = new StudentModel();
         $model->update($id, $this->request->getPost());
-        return redirect()->to('/students');
+        return redirect()->to(site_url('students'));
     }
 
     public function delete($id)
     {
         $model = new StudentModel();
         $model->delete($id);
-        return redirect()->to('/students');
+        return redirect()->to(site_url('students'));
     }
 }
