@@ -39,8 +39,28 @@ class Students extends BaseController
     public function store()
     {
         $model = new StudentModel();
-        $model->save($this->request->getPost());
-        return redirect()->to(site_url('students'));
+        $data = $this->request->getPost();
+
+        // Validate input
+        if (!$model->validate($data)) {
+            return redirect()->back()->withInput()->with('validation', $model->errors());
+        }
+
+        // Check for duplicate email
+        if ($model->emailExists($data['email'])) {
+            return redirect()->back()->withInput()->with('error', 'Email already exists in the system');
+        }
+
+        // Check for duplicate student number
+        if ($model->studentNumberExists($data['student_number'])) {
+            return redirect()->back()->withInput()->with('error', 'Student number already exists in the system');
+        }
+
+        if ($model->save($data)) {
+            return redirect()->to(site_url('students'))->with('success', 'Student added successfully');
+        } else {
+            return redirect()->back()->withInput()->with('error', 'Failed to add student');
+        }
     }
 
     public function edit($id)
@@ -58,14 +78,37 @@ class Students extends BaseController
     public function update($id)
     {
         $model = new StudentModel();
-        $model->update($id, $this->request->getPost());
-        return redirect()->to(site_url('students'));
+        $data = $this->request->getPost();
+
+        // Validate input
+        if (!$model->validate($data)) {
+            return redirect()->back()->withInput()->with('validation', $model->errors());
+        }
+
+        // Check for duplicate email (excluding current record)
+        if ($model->emailExists($data['email'], $id)) {
+            return redirect()->back()->withInput()->with('error', 'Email already exists in the system');
+        }
+
+        // Check for duplicate student number (excluding current record)
+        if ($model->studentNumberExists($data['student_number'], $id)) {
+            return redirect()->back()->withInput()->with('error', 'Student number already exists in the system');
+        }
+
+        if ($model->update($id, $data)) {
+            return redirect()->to(site_url('students'))->with('success', 'Student updated successfully');
+        } else {
+            return redirect()->back()->withInput()->with('error', 'Failed to update student');
+        }
     }
 
     public function delete($id)
     {
         $model = new StudentModel();
-        $model->delete($id);
-        return redirect()->to(site_url('students'));
+        if ($model->delete($id)) {
+            return redirect()->to(site_url('students'))->with('success', 'Student deleted successfully');
+        } else {
+            return redirect()->to(site_url('students'))->with('error', 'Failed to delete student');
+        }
     }
 }

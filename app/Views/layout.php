@@ -316,6 +316,30 @@
         .tag { background: var(--glass); border: 1px solid var(--glass-bd); border-radius: 20px; padding: 4px 12px; font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
         .tag-green  { background: var(--green-dim); border-color: var(--green-bd); color: var(--green); }
         .tag-purple { background: var(--purple-dim); border-color: var(--purple-bd); color: var(--accent); }
+
+        /* ── Toast Notifications ── */
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px; }
+        .toast { background: var(--glass); border: 1px solid var(--glass-bd); border-radius: 12px; padding: 16px 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; backdrop-filter: blur(20px); box-shadow: 0 8px 32px rgba(0,0,0,.3); animation: slideIn 0.3s ease-out; min-width: 300px; }
+        .toast.success { border-color: var(--green-bd); background: var(--green-dim); }
+        .toast.success .toast-icon { color: var(--green); font-weight: bold; }
+        .toast.success .toast-message { color: var(--green); }
+        .toast.error { border-color: var(--red-bd); background: var(--red-dim); }
+        .toast.error .toast-icon { color: var(--red); font-weight: bold; }
+        .toast.error .toast-message { color: var(--red); }
+        .toast-icon { font-size: 18px; flex-shrink: 0; }
+        .toast-message { font-size: 13px; flex: 1; font-weight: 500; }
+        .toast-close { cursor: pointer; color: var(--text-muted); font-size: 16px; flex-shrink: 0; }
+        .toast-close:hover { color: var(--text); }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(400px); opacity: 0; }
+        }
+        .toast.hide { animation: slideOut 0.3s ease-out forwards; }
     </style>
 </head>
 <body>
@@ -324,6 +348,9 @@
 <div class="bg-layer bg-glow"></div>
 <div class="bg-layer bg-pattern"></div>
 <div class="bg-custom-img" id="customBg"></div>
+
+<!-- Toast Notifications Container -->
+<div class="toast-container" id="toastContainer"></div>
 
 <!-- Settings Panel -->
 <div class="settings-panel" id="settingsPanel">
@@ -470,6 +497,35 @@
         document.getElementById('customBg').style.backgroundSize = 'cover';
         document.getElementById('customBg').style.backgroundPosition = 'center';
     }
+
+    // Toast Notifications
+    function showToast(message, type = 'success', duration = 4000) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            <span class="toast-icon">${type === 'success' ? '✓' : '✗'}</span>
+            <span class="toast-message">${message}</span>
+            <span class="toast-close" onclick="this.parentElement.remove()">×</span>
+        `;
+        container.appendChild(toast);
+        
+        // Auto remove after duration
+        setTimeout(() => {
+            toast.classList.add('hide');
+            setTimeout(() => toast.remove(), 300);
+        }, duration);
+    }
+
+    // Show flash messages as toasts on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        <?php if (session()->getFlashdata('success')): ?>
+            showToast('<?= addslashes(session()->getFlashdata('success')) ?>', 'success', 4000);
+        <?php endif; ?>
+        <?php if (session()->getFlashdata('error')): ?>
+            showToast('<?= addslashes(session()->getFlashdata('error')) ?>', 'error', 4000);
+        <?php endif; ?>
+    });
 </script>
 </body>
 </html>
